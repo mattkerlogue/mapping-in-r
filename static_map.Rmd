@@ -259,7 +259,8 @@ t13_dt <- t13_dt %>%
 
 ```
 
-* Using `case_when` we can add a column `nuts11cd` to our data with codes assigned using conditional statements evaluating the `region` column.
+* Rather than trying to match the different names/labels for the regions, it's better for use to use geographical codes, this makes sure both data.frames are talking about the same entities.
+* Using `dplyr::case_when` we can add the column `nuts11cd` to our data with codes assigned using conditional statements evaluating the `region` column.
 
 ]
 
@@ -356,7 +357,7 @@ ggplot(map_dt) +
 ``` {r, eval=FALSE}
 
 ggplot(map_dt) + 
-  geom_sf(aes(fill = total), colour = "white", size = 0.2) +    #<<
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    #<<
   scale_fill_distiller(palette = "Oranges", direction = 1) +   #<<
   theme_map()                                                   #<<
 
@@ -386,16 +387,76 @@ ggplot(map_dt) +
 ``` {r, eval=FALSE}
 
 ggplot(map_dt) + 
-  geom_sf(aes(fill = total), colour = "white", size = 0.2) +    
-  geom_sf_text(aes(label = str_wrap(                              #<<
-    paste(region, scales::comma(total), sep = ": "), 10)),        #<<
-    hjust = 0.5, size = 3) +                                    #<<
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(aes(label = total)) +                                    #<<
   scale_fill_distiller(palette = "Oranges", direction = 1) +   
   theme_map()                                                   
 
 ```
 
-* `geom_sf_text` allows us to add text labels using the coordinates from the sf object
+* `geom_sf_text` allows us to add text labels using the coordinates from the sf object... let's use the the total column (our headcounts)
+
+]
+
+
+.pull-left[
+``` {r, echo=FALSE, fig.height = 11, warning=FALSE, message=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(aes(label = total)) +                                    #<<
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map() 
+
+```
+]
+
+---
+
+.pull-right[
+
+``` {r, eval=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(aes(label = scales::comma(total))) +             #<<
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+
+```
+
+* we can use `scales::comma` to format the number with a thousands separator
+
+]
+
+
+.pull-left[
+``` {r, echo=FALSE, fig.height = 11, warning=FALSE, message=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(aes(label = scales::comma(total))) + 
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map() 
+
+```
+]
+
+---
+
+.pull-right[
+
+``` {r, eval=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(aes(label = paste(region, scales::comma(total), sep = ": ")) +   #<<
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+
+```
+
+* let's also add the region name to the label using `base::paste`
 
 ]
 
@@ -405,8 +466,7 @@ ggplot(map_dt) +
 
 ggplot(map_dt) + 
   geom_sf(aes(fill = total), colour = "white", size = 0.5) +
-  geom_sf_text(aes(label = str_wrap(paste(region, scales::comma(total), sep = ": "), 10)),
-               hjust = 0.5, size = 4.5) +
+  geom_sf_text(aes(label = paste(region, scales::comma(total), sep = ": "))) +
   scale_fill_distiller(palette = "Oranges", direction = 1) +
   theme_map()
 
@@ -420,17 +480,17 @@ ggplot(map_dt) +
 ``` {r, eval=FALSE}
 
 ggplot(map_dt) + 
-  geom_sf(aes(fill = total), colour = "white", size = 0.2) +    
-  geom_sf_text(aes(label = str_wrap(                              
-    paste(region, scales::comma(total), sep = ": "), 10)),        
-    hjust = 0.5, size = 3,
-    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.5,0)) +       #<<
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(
+    aes(label =                                                            #<<
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12)    #<<
+            )) +                                                           #<<
   scale_fill_distiller(palette = "Oranges", direction = 1) +   
   theme_map()                                                   
 
 ```
 
-* Let's also adjust London's label so that it's more easily visible
+* `stringr::str_wrap` provides a handy way of making strings wrap to a given length, in this case 12 characters
 
 ]
 
@@ -440,8 +500,133 @@ ggplot(map_dt) +
 
 ggplot(map_dt) + 
   geom_sf(aes(fill = total), colour = "white", size = 0.5) +
-  geom_sf_text(aes(label = str_wrap(paste(region, scales::comma(total), sep = ": "), 10)),
-               hjust = 0.5, size = 4.5, nudge_x = if_else(map_dt$nuts118cd=="UKI",1.5,0)) +
+  geom_sf_text(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12)
+      )) + 
+  scale_fill_distiller(palette = "Oranges", direction = 1) +
+  theme_map()
+
+```
+]
+
+
+---
+
+.pull-right[
+
+``` {r, eval=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),                    #<<
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0)) +                 #<<
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+
+```
+
+* Finally, let's also adjust the x-position of London's label, and the y-position of the South East's label
+* We could alternatively create adjustment columns in our data table and add `nudge_x = x_adjust` to sf_text's `aes` mapping
+
+]
+
+
+.pull-left[
+``` {r, echo=FALSE, fig.height = 11, warning=FALSE, message=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +
+  geom_sf_text(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12)),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0)) +
+  scale_fill_distiller(palette = "Oranges", direction = 1) +
+  ylim(50,59) +
+  theme_map()
+
+```
+]
+
+---
+
+.pull-right[
+
+``` {r, eval=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_label(                                                          #<<
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),                    
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0)) +                 
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+
+```
+
+* Switching to `geom_sf_label` provides a label background and border for the text
+
+]
+
+
+.pull-left[
+``` {r, echo=FALSE, fig.height = 11, warning=FALSE, message=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +
+  geom_sf_label(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12)),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0)) +
+  scale_fill_distiller(palette = "Oranges", direction = 1) +
+  ylim(50,59) +
+  theme_map()
+
+```
+]
+
+---
+
+.pull-right[
+
+``` {r, eval=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_label(                                                          
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),                    
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0),
+    label.size = 0, alpha = 0.5) +                                                    #<<
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+
+```
+
+* Finally, we can remove the border by setting `label.size` to 0, and adjust the background transparency via `alpha`
+
+]
+
+
+.pull-left[
+``` {r, echo=FALSE, fig.height = 11, warning=FALSE, message=FALSE}
+
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +
+  geom_sf_label(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12)),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0),
+    label.size = 0, alpha = 0.5) +
   scale_fill_distiller(palette = "Oranges", direction = 1) +
   ylim(50,59) +
   theme_map()

@@ -409,27 +409,15 @@ ggplot(map_dt) +
 
 ```r
 theme_map &lt;- function(...) {
-  theme_minimal() +
+  theme_void() +
     theme(
-      axis.line = element_blank(),
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank(),
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      panel.grid.major = element_line(color = "#ebebe5", size = NA),
-      panel.grid.minor = element_blank(),
-      plot.background = element_rect(fill = NA, color = NA),
-      panel.background = element_rect(fill = NA, color = NA),
-      legend.background = element_rect(fill = NA, color = NA),
       legend.position = "none",
-      panel.border = element_blank(),
       ...
     )
 }
 ```
 
-* We can create a custom ggplot theme to apply a simple output, e.g. removing latitude and longtitude lines
+* We can create a custom ggplot theme to remove the background features
 
 ]
 
@@ -445,7 +433,7 @@ theme_map &lt;- function(...) {
 
 ```r
 ggplot(map_dt) + 
-* geom_sf(aes(fill = total), colour = "white", size = 0.2) +
+* geom_sf(aes(fill = total), colour = "white", size = 0.5) +
 * scale_fill_distiller(palette = "Oranges", direction = 1) +
 * theme_map()
 ```
@@ -467,15 +455,13 @@ ggplot(map_dt) +
 
 ```r
 ggplot(map_dt) + 
-  geom_sf(aes(fill = total), colour = "white", size = 0.2) +    
-* geom_sf_text(aes(label = str_wrap(
-*   paste(region, scales::comma(total), sep = ": "), 10)),
-*   hjust = 0.5, size = 3) +
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+* geom_sf_text(aes(label = total)) +
   scale_fill_distiller(palette = "Oranges", direction = 1) +   
   theme_map()                                                   
 ```
 
-* `geom_sf_text` allows us to add text labels using the coordinates from the sf object
+* `geom_sf_text` allows us to add text labels using the coordinates from the sf object... let's use the the total column (our headcounts)
 
 ]
 
@@ -491,22 +477,147 @@ ggplot(map_dt) +
 
 ```r
 ggplot(map_dt) + 
-  geom_sf(aes(fill = total), colour = "white", size = 0.2) +    
-  geom_sf_text(aes(label = str_wrap(                              
-    paste(region, scales::comma(total), sep = ": "), 10)),        
-    hjust = 0.5, size = 3,
-*   nudge_x = if_else(map_dt$nuts118cd=="UKI",1.5,0)) +
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+* geom_sf_text(aes(label = scales::comma(total))) +
   scale_fill_distiller(palette = "Oranges", direction = 1) +   
   theme_map()                                                   
 ```
 
-* Let's also adjust London's label so that it's more easily visible
+* we can use `scales::comma` to format the number with a thousands separator
 
 ]
 
 
 .pull-left[
 ![](static_map_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+]
+
+---
+
+.pull-right[
+
+
+```r
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+* geom_sf_text(aes(label = paste(region, scales::comma(total), sep = ": ")) +
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+```
+
+* let's also add the region name to the label using `base::paste`
+
+]
+
+
+.pull-left[
+![](static_map_files/figure-html/unnamed-chunk-28-1.png)&lt;!-- --&gt;
+]
+
+---
+
+.pull-right[
+
+
+```r
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(
+*   aes(label =
+*     str_wrap(paste(region, scales::comma(total), sep = ": "), 12)
+*           )) +
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+```
+
+* `stringr::str_wrap` provides a handy way of making strings wrap to a given length, in this case 12 characters
+
+]
+
+
+.pull-left[
+![](static_map_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+]
+
+
+---
+
+.pull-right[
+
+
+```r
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_text(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12),   
+*   nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),
+*   nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0)) +
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+```
+
+* Finally, let's also adjust the x-position of London's label, and the y-position of the South East's label
+* We could alternatively create adjustment columns in our data table and add `nudge_x = x_adjust` to sf_text's `aes` mapping
+
+]
+
+
+.pull-left[
+![](static_map_files/figure-html/unnamed-chunk-32-1.png)&lt;!-- --&gt;
+]
+
+---
+
+.pull-right[
+
+
+```r
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+* geom_sf_label(
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),                    
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0)) +                 
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+```
+
+* Switching to `geom_sf_label` provides a label background and border for the text
+
+]
+
+
+.pull-left[
+![](static_map_files/figure-html/unnamed-chunk-34-1.png)&lt;!-- --&gt;
+]
+
+---
+
+.pull-right[
+
+
+```r
+ggplot(map_dt) + 
+  geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
+  geom_sf_label(                                                          
+    aes(label = 
+          str_wrap(paste(region, scales::comma(total), sep = ": "), 12),   
+    nudge_x = if_else(map_dt$nuts118cd=="UKI",1.25,0),                    
+    nudge_y = if_else(map_dt$nuts118cd=="UKJ",-0.25,0),
+*   label.size = 0, alpha = 0.5) +
+  scale_fill_distiller(palette = "Oranges", direction = 1) +   
+  theme_map()                                                   
+```
+
+* We can remove the border by setting `label.size` to 0, and adjust the background transparency via `alpha`
+
+]
+
+
+.pull-left[
+![](static_map_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
 ]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
