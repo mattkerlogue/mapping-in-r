@@ -321,7 +321,8 @@ t13_dt &lt;- t13_dt %&gt;%
   ))
 ```
 
-* Using `case_when` we can add a column `nuts11cd` to our data with codes assigned using conditional statements evaluating the `region` column.
+* Rather than trying to match the different names/labels for the regions, it's better for use to use geographical codes, this makes sure both data.frames are talking about the same entities.
+* Using `dplyr::case_when` we can add the column `nuts11cd` to our data with codes assigned using conditional statements evaluating the `region` column.
 
 ]
 
@@ -524,7 +525,7 @@ ggplot(map_dt) +
   geom_sf(aes(fill = total), colour = "white", size = 0.5) +    
   geom_sf_text(
 *   aes(label =
-*     str_wrap(paste(region, scales::comma(total), sep = ": "), 12)
+*         str_wrap(paste(region, scales::comma(total), sep = ": "), 12)
 *           )) +
   scale_fill_distiller(palette = "Oranges", direction = 1) +   
   theme_map()                                                   
@@ -611,7 +612,7 @@ ggplot(map_dt) +
   theme_map()                                                   
 ```
 
-* We can remove the border by setting `label.size` to 0, and adjust the background transparency via `alpha`
+* Finally, we can remove the border by setting `label.size` to 0, and adjust the background transparency via `alpha`
 
 ]
 
