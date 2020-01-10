@@ -10,16 +10,17 @@ Adapted from Matt Dray's {gdstheme} https://github.com/matt-dray/gdstheme
 
 /* Import from Google Fonts */
 
+@import url('https://fonts.googleapis.com/css?family=Fira+Code:100,300,600');
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab:300,bold');
-@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300,600;800');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:100,300,600');
 @import url('https://fonts.googleapis.com/css?family=Raleway:600,300,800');
 
 /* Sans serif body text */
 
 body {
   font-family: 'Roboto Slab', sans-serif;
-  sans-serif; font-weight: 300;
+  font-weight: 300;
 }
 
 .remark-slide-content > h1 {
@@ -45,8 +46,8 @@ body {
 /* Monospace script */
 
 .remark-code, .remark-inline-code {
-  font-family: 'Roboto Mono', monospace;
-  font-weight: 300;
+  font-family: 'Fira Code', 'Roboto Mono', monospace;
+  font-weight: 100;
 }
 
 .title-text {
